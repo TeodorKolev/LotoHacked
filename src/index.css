@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for Loto Hacked */
+.pattern-squares { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 2px; 
+}
+
+.pattern-square-row { 
+  display: flex; 
+  align-items: center; 
+  margin-bottom: 0; 
+}
+
+.pattern-square { 
+  width: 40px; 
+  height: 40px; 
+  border-radius: 3px; 
+  margin-right: 2px; 
+  display: inline-block; 
+}
+
+.heatmap-table td.number-cell { 
+  font-weight: bold; 
+  color: #fff; 
+  border-radius: 4px; 
+}
+
+.heatmap-table td { 
+  text-align: center; 
+  padding: 0.25rem; 
+}
+
+/* Hot/Cold Number Circles */
+.number-list {
+  display: flex;
+  gap: 22px;
+  margin-bottom: 18px;
+}
+
+.number-circle {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  font-size: 2.1rem;
+  font-weight: 800;
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  position: relative;
+  padding-top: 6px;
+  padding-bottom: 2px;
+}
+
+.number-circle .label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin-top: 0px;
+  color: #fff;
+  opacity: 0.85;
+  letter-spacing: 0.01em;
+}
+
+.number-circle.hot {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+}
+
+.number-circle.cold {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+/* Custom gradient circles for hot/cold numbers */
+.hot-number {
+  background: linear-gradient(135deg, #ff6b6b, #ff4757);
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.cold-number {
+  background: linear-gradient(135deg, #3742fa, #2f3542);
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Pattern colors for analysis */
+.pattern-consecutive { background-color: #ef4444; }
+.pattern-even-odd { background-color: #3b82f6; }
+.pattern-low-high { background-color: #10b981; }
+.pattern-sum-range { background-color: #f59e0b; }
+.pattern-pairs { background-color: #8b5cf6; }
+.pattern-triplets { background-color: #ec4899; }
+.pattern-gaps { background-color: #06b6d4; }
+.pattern-default { background-color: #6b7280; }
+
+/* Text shadow utility */
+.text-shadow {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+} 
