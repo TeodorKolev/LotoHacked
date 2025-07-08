@@ -58,16 +58,18 @@ function Analytics() {
     }
   }, [name])
 
-  if (loading) return <div className="text-center py-8">Loading analytics...</div>
+  if (loading) {
+    return (
+      <div className="bg-gradient-to-br from-gray-50 to-blue-50 flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-500 border-t-transparent"></div>
+      </div>
+    )
+  }
   if (error) return <div className="text-center py-8 text-red-500">Error: {error}</div>
   if (!data) return <div className="text-center py-8">No data available</div>
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-8 text-center">
-        {name.toUpperCase()}
-      </h1>
-
+    <div className="container mx-auto px-4 py-4">
       {/* Recent Draws - moved to top */}
       <div className="mb-8">
         <div className="bg-white rounded-lg shadow-md p-6">

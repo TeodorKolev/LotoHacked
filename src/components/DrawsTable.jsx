@@ -19,17 +19,19 @@ function DrawsTable({ data }) {
     return number.toString() === highlightNumber.toString()
   }
 
-  // Get special number (only one)
-  const getSpecialNumber = (draw) => {
-    if (draw.special !== undefined && draw.special !== null) {
-      return draw.special
-    }
-    
+  // Get special number(s) - prioritize spcials array if it exists and is not empty
+  const getSpecialNumbers = (draw) => {
+    // Check if spcials array exists and is not empty
     if (draw.spcials && Array.isArray(draw.spcials) && draw.spcials.length > 0) {
-      return draw.spcials[0] // Only return the first special number
+      return draw.spcials
     }
     
-    return null
+    // Fall back to special field
+    if (draw.special !== undefined && draw.special !== null) {
+      return [draw.special]
+    }
+    
+    return []
   }
 
   // Get all unique numbers for the select dropdown
@@ -42,11 +44,13 @@ function DrawsTable({ data }) {
           numbers.add(num)
         }
       })
-      // Add special number
-      const specialNumber = getSpecialNumber(draw)
-      if (specialNumber !== null) {
-        numbers.add(specialNumber)
-      }
+      // Add special numbers
+      const specialNumbers = getSpecialNumbers(draw)
+      specialNumbers.forEach(num => {
+        if (num !== undefined && num !== null) {
+          numbers.add(num)
+        }
+      })
     })
     return Array.from(numbers).sort((a, b) => a - b)
   }
@@ -139,54 +143,67 @@ function DrawsTable({ data }) {
               )}
             </tr>
           </thead>
-          <tbody className="bg-white divide-y divide-gray-200">
-            {displayData.map((draw, index) => {
-              const specialNumber = getSpecialNumber(draw)
-              const rowBg = index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
-              
-              return (
-                <tr key={index} className={`${rowBg} hover:bg-gray-100`}>
-                  <td className={`px-3 py-1 whitespace-nowrap text-xs text-center ${
-                    shouldHighlight(draw.b_1) ? 'bg-yellow-300 font-bold text-black' : ''
-                  }`}>
-                    {draw.b_1 || '-'}
+                  <tbody className="bg-white divide-y divide-gray-200">
+          {displayData.map((draw, index) => {
+            const specialNumbers = getSpecialNumbers(draw)
+            const rowBg = index % 2 === 0 ? 'bg-white' : 'bg-gray-50'
+            
+            return (
+              <tr key={index} className={`${rowBg} hover:bg-gray-100`}>
+                <td className={`px-3 py-1 whitespace-nowrap text-xs text-center ${
+                  shouldHighlight(draw.b_1) ? 'bg-yellow-300 font-bold text-black' : ''
+                }`}>
+                  {draw.b_1 || '-'}
+                </td>
+                <td className={`px-3 py-1 whitespace-nowrap text-xs text-center ${
+                  shouldHighlight(draw.b_2) ? 'bg-yellow-300 font-bold text-black' : ''
+                }`}>
+                  {draw.b_2 || '-'}
+                </td>
+                <td className={`px-3 py-1 whitespace-nowrap text-xs text-center ${
+                  shouldHighlight(draw.b_3) ? 'bg-yellow-300 font-bold text-black' : ''
+                }`}>
+                  {draw.b_3 || '-'}
+                </td>
+                <td className={`px-3 py-1 whitespace-nowrap text-xs text-center ${
+                  shouldHighlight(draw.b_4) ? 'bg-yellow-300 font-bold text-black' : ''
+                }`}>
+                  {draw.b_4 || '-'}
+                </td>
+                <td className={`px-3 py-1 whitespace-nowrap text-xs text-center ${
+                  shouldHighlight(draw.b_5) ? 'bg-yellow-300 font-bold text-black' : ''
+                }`}>
+                  {draw.b_5 || '-'}
+                </td>
+                {showSpecial && (
+                  <td className="px-3 py-1 whitespace-nowrap text-xs text-center text-black">
+                    {specialNumbers.length > 0 ? (
+                      <div className="flex gap-1 justify-center">
+                        {specialNumbers.map((num, idx) => (
+                          <span
+                            key={idx}
+                            className={`${
+                              shouldHighlight(num) ? 'bg-yellow-300 font-bold text-black px-1 rounded' : ''
+                            }`}
+                          >
+                            {num}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      '-'
+                    )}
                   </td>
-                  <td className={`px-3 py-1 whitespace-nowrap text-xs text-center ${
-                    shouldHighlight(draw.b_2) ? 'bg-yellow-300 font-bold text-black' : ''
-                  }`}>
-                    {draw.b_2 || '-'}
+                )}
+                {showDate && (
+                  <td className="px-3 py-1 whitespace-nowrap text-xs text-gray-500">
+                    {draw.date_de_tirage || draw.draw_date || draw.date || 'N/A'}
                   </td>
-                  <td className={`px-3 py-1 whitespace-nowrap text-xs text-center ${
-                    shouldHighlight(draw.b_3) ? 'bg-yellow-300 font-bold text-black' : ''
-                  }`}>
-                    {draw.b_3 || '-'}
-                  </td>
-                  <td className={`px-3 py-1 whitespace-nowrap text-xs text-center ${
-                    shouldHighlight(draw.b_4) ? 'bg-yellow-300 font-bold text-black' : ''
-                  }`}>
-                    {draw.b_4 || '-'}
-                  </td>
-                  <td className={`px-3 py-1 whitespace-nowrap text-xs text-center ${
-                    shouldHighlight(draw.b_5) ? 'bg-yellow-300 font-bold text-black' : ''
-                  }`}>
-                    {draw.b_5 || '-'}
-                  </td>
-                  {showSpecial && (
-                    <td className={`px-3 py-1 whitespace-nowrap text-xs text-center ${
-                      shouldHighlight(specialNumber) ? 'bg-yellow-300 font-bold text-black' : 'text-black'
-                    }`}>
-                      {specialNumber || '-'}
-                    </td>
-                  )}
-                  {showDate && (
-                    <td className="px-3 py-1 whitespace-nowrap text-xs text-gray-500">
-                      {draw.date_de_tirage || draw.draw_date || draw.date || 'N/A'}
-                    </td>
-                  )}
-                </tr>
-              )
-            })}
-          </tbody>
+                )}
+              </tr>
+            )
+          })}
+        </tbody>
         </table>
       </div>
     </div>

@@ -68,44 +68,47 @@ function Heatmap({ data, drawsData, maxNumber = 49 }) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 max-h-96 overflow-y-auto">
       {heatmaps.map((heatmap, index) => (
         <div key={index}>
           <h3 className="text-sm font-medium text-gray-700 mb-1">{heatmap.title}</h3>
           
-          {/* Numbers row */}
-          <div className="flex gap-px mb-px">
-            {numbers.map((number) => {
-              const value = heatmap.data[number.toString()] || 0
-              return (
-                <div
-                  key={number}
-                  className="w-6 h-5 flex items-center justify-center text-xs font-bold rounded-sm flex-shrink-0"
-                  style={{ 
-                    backgroundColor: getBackgroundColor(number, heatmap.data),
-                    color: getTextColor(number, heatmap.data)
-                  }}
-                  title={`Number ${number}: ${value} times`}
-                >
-                  {number}
-                </div>
-              )
-            })}
-          </div>
-          
-          {/* Values row */}
-          <div className="flex gap-px mb-1">
-            {numbers.map((number) => {
-              const value = heatmap.data[number.toString()] || 0
-              return (
-                <div
-                  key={`value-${number}`}
-                  className="w-6 h-4 flex items-center justify-center text-xs text-gray-700 flex-shrink-0"
-                >
-                  {value}
-                </div>
-              )
-            })}
+          {/* Scrollable container for small screens */}
+          <div className="overflow-x-auto">
+            {/* Numbers row */}
+            <div className="flex gap-px mb-px min-w-max">
+              {numbers.map((number) => {
+                const value = heatmap.data[number.toString()] || 0
+                return (
+                  <div
+                    key={number}
+                    className="w-6 h-5 flex items-center justify-center text-xs font-bold rounded-sm flex-shrink-0"
+                    style={{ 
+                      backgroundColor: getBackgroundColor(number, heatmap.data),
+                      color: getTextColor(number, heatmap.data)
+                    }}
+                    title={`Number ${number}: ${value} times`}
+                  >
+                    {number}
+                  </div>
+                )
+              })}
+            </div>
+            
+            {/* Values row */}
+            <div className="flex gap-px mb-1 min-w-max">
+              {numbers.map((number) => {
+                const value = heatmap.data[number.toString()] || 0
+                return (
+                  <div
+                    key={`value-${number}`}
+                    className="w-6 h-4 flex items-center justify-center text-xs text-gray-700 flex-shrink-0"
+                  >
+                    {value}
+                  </div>
+                )
+              })}
+            </div>
           </div>
         </div>
       ))}
