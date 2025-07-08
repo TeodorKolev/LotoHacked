@@ -256,7 +256,7 @@ def lambda_handler(event, context):
     store_analytics_to_dynamodb(ENV, "consecutive_count", distribution, ANALYTICS_TABLE)
 
     # Frequency analysis
-    frequency = analyze_number_frequency(data, last_n=LAST_N, max_number=MAX_NUMBER)
+    frequency = analyze_number_frequency(data, None, max_number=MAX_NUMBER)
     store_analytics_to_dynamodb(ENV, "frequency_count", frequency, ANALYTICS_TABLE)
 
     # Sums analysis
