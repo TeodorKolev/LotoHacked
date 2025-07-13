@@ -1,6 +1,7 @@
 import { Routes, Route } from 'react-router-dom'
 import Home from './pages/Home'
 import Analytics from './pages/Analytics'
+import HowToWin from './pages/HowToWin'
 import Navbar from './components/Navbar'
 
 function App() {
@@ -11,6 +12,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/analytics/:name" element={<Analytics />} />
+          <Route path="/how-to-win" element={<HowToWin />} />
         </Routes>
       </main>
               <footer className="bg-slate-900 text-white py-12 mt-auto">
