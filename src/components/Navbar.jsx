@@ -16,6 +16,12 @@ function Navbar() {
             >
               Home
             </Link>
+            <Link 
+              to="/how-to-win" 
+              className="text-white hover:text-amber-300 transition-colors font-medium text-lg"
+            >
+              How to Win
+            </Link>
           </div>
         </div>
       </div>
