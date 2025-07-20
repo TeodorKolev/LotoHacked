@@ -68,6 +68,10 @@ function Analytics() {
   if (error) return <div className="text-center py-8 text-red-500">Error: {error}</div>
   if (!data) return <div className="text-center py-8">No data available</div>
 
+  // Check if this is KENO data (has 20 numbers)
+  const isKenoData = data.draws && data.draws.some(draw => draw.b_20 !== undefined)
+  const maxNumber = isKenoData ? 70 : 49
+
   return (
     <div className="container mx-auto px-4 py-4">
       {/* Recent Draws - moved to top */}
@@ -82,7 +86,7 @@ function Analytics() {
       <div className="mb-8">
         <div className="bg-white rounded-lg shadow-md p-6">
           <h2 className="text-xl font-semibold mb-4">Heatmaps</h2>
-          <Heatmap data={data.frequency_count} drawsData={data.draws} />
+          <Heatmap data={data.frequency_count} drawsData={data.draws} maxNumber={maxNumber} />
         </div>
       </div>
 

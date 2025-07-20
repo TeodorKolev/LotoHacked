@@ -49,9 +49,9 @@ def lambda_handler(event, context):
         if cached:
             return cached
         table = dynamodb.Table(ANALYTICS_TABLE)  # type: ignore[attr-defined]
-        # Fetch all analytics types for this name
+        # Fetch all analytics types for this name (excluding draws which is handled separately)
         analytics_types = [
-            'draws', 'pattern_counts', 'odd_even', 'low_high', 'consecutive_count',
+            'pattern_counts', 'odd_even', 'low_high', 'consecutive_count',
             'frequency_count', 'sums', 'pairs_count', 'hot_cold', 'pattern_prediction'
         ]
         result = {}
@@ -61,6 +61,27 @@ def lambda_handler(event, context):
                 # Remove date_created, date_updated, last_draw_date if present
                 filtered = {k: v for k, v in item.items() if k not in ['date_created', 'date_updated', 'last_draw_date', 'name', 'type']}
                 result[t] = filtered.get('distribution', filtered)
+        
+        # Handle draws - chunked for KENO, single item for standard lotteries
+        draws_metadata_item = table.get_item(Key={'name': name, 'type': 'draws_metadata'}).get('Item')
+        if draws_metadata_item:
+            # KENO: Handle chunked draws
+            total_chunks = draws_metadata_item.get('distribution', {}).get('total_chunks', 0)
+            all_draws = []
+            
+            for chunk_num in range(1, total_chunks + 1):
+                chunk_item = table.get_item(Key={'name': name, 'type': f'draws_chunk_{chunk_num}'}).get('Item')
+                if chunk_item:
+                    chunk_draws = chunk_item.get('distribution', [])
+                    all_draws.extend(chunk_draws)
+            
+            result['draws'] = all_draws
+        else:
+            # Standard lotteries: single draws item
+            draws_item = table.get_item(Key={'name': name, 'type': 'draws'}).get('Item')
+            if draws_item:
+                filtered = {k: v for k, v in draws_item.items() if k not in ['date_created', 'date_updated', 'last_draw_date', 'name', 'type']}
+                result['draws'] = filtered.get('distribution', filtered)
         resp = {'statusCode': 200, 'body': json.dumps(result, cls=DecimalEncoder)}
         cache_set(cache_key, resp)
         return resp
@@ -74,10 +95,26 @@ def lambda_handler(event, context):
         if cached:
             return cached
         table = dynamodb.Table(ANALYTICS_TABLE)  # type: ignore[attr-defined]
-        draws = table.get_item(Key={'name': name, 'type': 'draws'}).get('Item', {})
-        distribution = draws.get('distribution', [])
+        # Get all draws - chunked for KENO, single item for standard lotteries
+        draws_metadata_item = table.get_item(Key={'name': name, 'type': 'draws_metadata'}).get('Item')
+        all_draws = []
+        
+        if draws_metadata_item:
+            # KENO: Get draws from chunks
+            total_chunks = draws_metadata_item.get('distribution', {}).get('total_chunks', 0)
+            
+            for chunk_num in range(1, total_chunks + 1):
+                chunk_item = table.get_item(Key={'name': name, 'type': f'draws_chunk_{chunk_num}'}).get('Item')
+                if chunk_item:
+                    chunk_draws = chunk_item.get('distribution', [])
+                    all_draws.extend(chunk_draws)
+        else:
+            # Standard lotteries: single draws item
+            draws = table.get_item(Key={'name': name, 'type': 'draws'}).get('Item', {})
+            all_draws = draws.get('distribution', [])
+        
         # Sort by draw_date descending, return last n
-        sorted_draws = sorted(distribution, key=lambda d: d.get('draw_date', ''), reverse=True)[:n]
+        sorted_draws = sorted(all_draws, key=lambda d: d.get('draw_date', ''), reverse=True)[:n]
         resp = {'statusCode': 200, 'body': json.dumps({'draws': sorted_draws})}
         cache_set(cache_key, resp)
         return resp
@@ -91,15 +128,37 @@ def lambda_handler(event, context):
         if cached:
             return cached
         table = dynamodb.Table(ANALYTICS_TABLE)  # type: ignore[attr-defined]
-        draws = table.get_item(Key={'name': name, 'type': 'draws'}).get('Item', {})
-        distribution = draws.get('distribution', [])
-        sorted_draws = sorted(distribution, key=lambda d: d.get('draw_date', ''), reverse=True)[:n]
-        # Calculate heatmap: count frequency of each number in b_1..b_5
+        # Get all draws - chunked for KENO, single item for standard lotteries
+        draws_metadata_item = table.get_item(Key={'name': name, 'type': 'draws_metadata'}).get('Item')
+        all_draws = []
+        
+        if draws_metadata_item:
+            # KENO: Get draws from chunks
+            total_chunks = draws_metadata_item.get('distribution', {}).get('total_chunks', 0)
+            
+            for chunk_num in range(1, total_chunks + 1):
+                chunk_item = table.get_item(Key={'name': name, 'type': f'draws_chunk_{chunk_num}'}).get('Item')
+                if chunk_item:
+                    chunk_draws = chunk_item.get('distribution', [])
+                    all_draws.extend(chunk_draws)
+        else:
+            # Standard lotteries: single draws item
+            draws = table.get_item(Key={'name': name, 'type': 'draws'}).get('Item', {})
+            all_draws = draws.get('distribution', [])
+        
+        sorted_draws = sorted(all_draws, key=lambda d: d.get('draw_date', ''), reverse=True)[:n]
+        # Calculate heatmap: count frequency of each number
         heatmap = defaultdict(int)
         for draw in sorted_draws:
-            for k in ['b_1', 'b_2', 'b_3', 'b_4', 'b_5']:
-                if k in draw:
-                    heatmap[str(draw[k])] += 1
+            # Check if this is KENO (has b_20) or standard lottery (has b_5)
+            if 'b_20' in draw:  # KENO - 20 numbers
+                for k in [f'b_{i}' for i in range(1, 21)]:
+                    if k in draw:
+                        heatmap[str(draw[k])] += 1
+            else:  # Standard lottery - 5 numbers
+                for k in ['b_1', 'b_2', 'b_3', 'b_4', 'b_5']:
+                    if k in draw:
+                        heatmap[str(draw[k])] += 1
         resp = {'statusCode': 200, 'body': json.dumps({'heatmap': dict(heatmap)})}
         cache_set(cache_key, resp)
         return resp
