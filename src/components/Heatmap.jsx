@@ -19,11 +19,16 @@ function Heatmap({ data, drawsData, maxNumber = 49 }) {
       if (draw.numbers && Array.isArray(draw.numbers)) {
         mainNumbers.push(...draw.numbers)
       } else if (draw.b_1 !== undefined) {
-        [draw.b_1, draw.b_2, draw.b_3, draw.b_4, draw.b_5].forEach(num => {
+        // Check if this is KENO (20 numbers) or standard lottery (5 numbers)
+        const isKeno = draw.b_20 !== undefined
+        const numBalls = isKeno ? 20 : 5
+        
+        for (let i = 1; i <= numBalls; i++) {
+          const num = draw[`b_${i}`]
           if (num !== undefined && num !== null) {
             mainNumbers.push(num)
           }
-        })
+        }
       }
       
       mainNumbers.forEach(num => {

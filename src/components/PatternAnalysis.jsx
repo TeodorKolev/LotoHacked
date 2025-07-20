@@ -8,7 +8,9 @@ function PatternAnalysis({ data }) {
     'yellow': '#ffd92f',
     'red': '#f77189',
     'purple': '#bb83f4',
-    'blue': '#3ba3ec'
+    'blue': '#3ba3ec',
+    'orange': '#ff9500',
+    'pink': '#ff69b4'
   }
 
   // Convert to array and sort by count
