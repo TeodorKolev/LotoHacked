@@ -66,7 +66,7 @@ def lambda_handler(event, context):
         draws_metadata_item = table.get_item(Key={'name': name, 'type': 'draws_metadata'}).get('Item')
         if draws_metadata_item:
             # KENO: Handle chunked draws
-            total_chunks = draws_metadata_item.get('distribution', {}).get('total_chunks', 0)
+            total_chunks = int(draws_metadata_item.get('distribution', {}).get('total_chunks', 0))
             all_draws = []
             
             for chunk_num in range(1, total_chunks + 1):
@@ -101,7 +101,7 @@ def lambda_handler(event, context):
         
         if draws_metadata_item:
             # KENO: Get draws from chunks
-            total_chunks = draws_metadata_item.get('distribution', {}).get('total_chunks', 0)
+            total_chunks = int(draws_metadata_item.get('distribution', {}).get('total_chunks', 0))
             
             for chunk_num in range(1, total_chunks + 1):
                 chunk_item = table.get_item(Key={'name': name, 'type': f'draws_chunk_{chunk_num}'}).get('Item')
@@ -134,7 +134,7 @@ def lambda_handler(event, context):
         
         if draws_metadata_item:
             # KENO: Get draws from chunks
-            total_chunks = draws_metadata_item.get('distribution', {}).get('total_chunks', 0)
+            total_chunks = int(draws_metadata_item.get('distribution', {}).get('total_chunks', 0))
             
             for chunk_num in range(1, total_chunks + 1):
                 chunk_item = table.get_item(Key={'name': name, 'type': f'draws_chunk_{chunk_num}'}).get('Item')
